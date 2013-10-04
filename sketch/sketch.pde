@@ -8,6 +8,7 @@
 /* @pjs preload="andrew.jpg"; */
 PImage img;
 PGraphics pg;
+PFont monospace;
 var cellH, cellW, cols, rows;
 var fontMeta = {
 };
@@ -19,15 +20,11 @@ var theFontSize = 10;
 var fColor = 0;
 var bColor = 255;
 
-var ctx;
-final int cameraWidth = 500;
-final int cameraHeight = 500;
-
 void setup() {
   size(500, 500);
   img = loadImage("andrew.jpg");
 
-  PFont monospace = createFont("monospace", theFontSize);
+  monospace = createFont("monospace", theFontSize);
   textFont(monospace);
   textSize(theFontSize);
   textAlign(LEFT, BOTTOM);
@@ -37,48 +34,54 @@ void setup() {
   rows = int(height/cellH);
   regionSize = cellW*cellH;
 
-  //  for(var i=0; i<=126-33; i++){
-  //    var l = String.fromCharCode(i+33);
-  //    pg = createGraphics(cellW, cellH);
-  //    pg.beginDraw();
-  //    pg.background(0);
-  //    pg.fill(255);
-  //    pg.stroke(255);
-  //    pg.textFont(monospace);
-  //    pg.textSize(18);
-  //    pg.textAlign(LEFT,BASELINE);
-  //    pg.text(l,0,0);
-  //    pg.loadPixels();
-  //    var b = 0.0;
-  //    for(var px=0; px<pg.pixels.length; px++){
-  //       b += brightness(pg.pixels[px]);
-  //        
-  ////       console.log(l + " " +brightness + " " +c);
-  //     }
-  //     b = b / pg.pixels.length;
-  //     fontMeta[l] = b;
-  //    pg.endDraw();
-  //  }
+  calculateBrightnessOfFont();
+  normalizeFontTable();
 
-  rectMode(CORNER);
+  background(bColor);
+}
+
+void draw() {
+  if (img != null) {
+    calculateBrightnessOfEachPixel();
+    //  drawBrightnessAsGrayValue();
+    calculateAverageBrightnessOfRegionOfPixels();
+    //  drawAvgBrightnessOfRegionOfPixels();
+    findClosestBrightnessMatchFromCharArray();
+
+    background(bColor);
+    drawChars();
+  }
+}
+
+void calculateBrightnessOfFont() {
+  pg = createGraphics(cellW, cellH);
+  pg.beginDraw();
+  pg.rectMode(CORNER);
+  pg.noStroke();
+  pg.textFont(monospace);
+  pg.textSize(theFontSize);
+  pg.textAlign(LEFT, BOTTOM);
+
   for (var i=0; i<=126-33; i++) {
     var l = String.fromCharCode(i+33);
-    fill(bColor);
-    noStroke();
-    rect(0, 0, cellW, cellH);
-    fill(fColor);
-    text(l, 0, 0+cellH);
-    loadPixels();
+    pg.fill(bColor);
+    pg.rect(0, 0, cellW, cellH);
+    pg.fill(fColor);
+    pg.text(l, 0, 0+cellH);
+    pg.loadPixels();
     var b = 0.0;
     for (var x=0; x<cellW; x++) {
       for (var y=0; y<cellH; y++) {
-        b += brightness(get(x, y));
+        b += brightness(pg.pixels[y*cellW+x]);
       }
     }
     b = b / (cellW*cellH);
     fontMeta[l] = b;
   }
+  pg.endDraw();
+}
 
+void normalizeFontTable() {
   // scale
   var min = 255;
   var max = 0;
@@ -98,31 +101,7 @@ void setup() {
     fontMeta[l] = 255*(b-min) / (max-min);
   }
   //  console.log("font brightness levels: "+fontMeta);
-
-  background(bColor);
 }
-
-void draw() {
-//  if (!video.available) return;
-//
-//  // video is defined outside processing code
-//  // draw image to the canvas so that we can read it back, even
-//  // though I have set display:none for the video
-//  // not sure is processingjs can read the video directly and skip this step?
-//  ctx.drawImage(video, 0, 0, cameraWidth, cameraHeight);
-//  img = get(0, 0, cameraWidth, cameraHeight);
-  if (img != null) {
-    calculateBrightnessOfEachPixel();
-    //  drawBrightnessAsGrayValue();
-    calculateAverageBrightnessOfRegionOfPixels();
-    //  drawAvgBrightnessOfRegionOfPixels();
-    findClosestBrightnessMatchFromCharArray();
-    
-    background(bColor);
-    drawChars();
-  }
-}
-
 void calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
@@ -215,5 +194,7 @@ function drawChars() {
 void resizeSketch(int w, int h) {
   if (w < 680) {
     size(w, floor(float(w)/680*610) - 30);
-    } else size(680, 610 - 30);
+  } 
+  else size(680, 610 - 30);
 }
+
