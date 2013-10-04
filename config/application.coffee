@@ -46,10 +46,10 @@ steroids.config.statusBar.style = "default"
 # steroids.config.watch.exclude = ["www/my_excluded_file.js", "www/my_excluded_dir"]
 
 # -- Pre- and Post-Make hooks --
-# steroids.config.hooks.preMake.cmd = "echo"
-# steroids.config.hooks.preMake.args = ["running yeoman"]
-# steroids.config.hooks.postMake.cmd = "echo"
-# steroids.config.hooks.postMake.args = ["cleaning up files"]
+#steroids.config.hooks.preMake.cmd = "cp"
+#steroids.config.hooks.preMake.args = ["-R","sketchToSteroids.sh","app/sketch/"]
+#steroids.config.hooks.postMake.cmd = "cp"
+#steroids.config.hooks.postMake.args = ["sketch/web-export/processing.js","dist/"]
 
 # -- Default Editor --
 # steroids.config.editor.cmd = "subl"
