@@ -30,10 +30,7 @@ void setup() {
   textAlign(LEFT, BOTTOM);
   cellH = int(textDescent() + textAscent());
   cellW = int(textWidth("a"));
-  cols = int(width/cellW);
-  rows = int(height/cellH);
   regionSize = cellW*cellH;
-  
 
   calculateBrightnessOfFont();
   normalizeFontTable();
@@ -42,7 +39,9 @@ void setup() {
 }
 
 void draw() {
-  //size(window.innerWidth, window.innerHeight);
+  size(window.innerWidth, window.innerHeight);
+  cols = int(width/cellW);
+  rows = int(height/cellH);
   
   if (img != null) {
     calculateBrightnessOfEachPixel();
@@ -51,8 +50,6 @@ void draw() {
     //  drawAvgBrightnessOfRegionOfPixels();
     findClosestBrightnessMatchFromCharArray();
     drawChars();
-    
-    img = null;
   }
 }
 
@@ -109,13 +106,10 @@ void calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
   pg.imageMode(CENTER);
-  if(img.width < width){
-    img.resize(width, 0);
-  }
-  if(img.height < height){
-    img.resize(0, height);
-  }
-  pg.image(img, width/2, height/2);
+  var scaleFactor = 1.0;
+  scaleFactor = width / img.width;
+  scaleFactor = max(scaleFactor, height / img.height);
+  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
     imgPixelBrightness[x] = new Array();
