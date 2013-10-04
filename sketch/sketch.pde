@@ -5,7 +5,7 @@
 //http://www.raymondcamden.com/index.cfm/2013/5/20/Capturing-camerapicture-data-without-PhoneGap
 
 
-/* @pjs preload="andrew.jpg"; */
+/* @pjs preload="andrew.jpg, andrew-486x115.jpg, andrew-253x456.jpg"; */
 PImage img;
 PGraphics pg;
 PFont monospace;
@@ -23,7 +23,7 @@ var bColor = 255;
 void setup() {
   size(500, 500);
   img = loadImage("andrew.jpg");
-
+  
   monospace = createFont("monospace", theFontSize);
   textFont(monospace);
   textSize(theFontSize);
@@ -33,6 +33,7 @@ void setup() {
   cols = int(width/cellW);
   rows = int(height/cellH);
   regionSize = cellW*cellH;
+  
 
   calculateBrightnessOfFont();
   normalizeFontTable();
@@ -41,15 +42,17 @@ void setup() {
 }
 
 void draw() {
+  //size(window.innerWidth, window.innerHeight);
+  
   if (img != null) {
     calculateBrightnessOfEachPixel();
-    //  drawBrightnessAsGrayValue();
+    // drawBrightnessAsGrayValue();
     calculateAverageBrightnessOfRegionOfPixels();
     //  drawAvgBrightnessOfRegionOfPixels();
     findClosestBrightnessMatchFromCharArray();
-
-    background(bColor);
     drawChars();
+    
+    img = null;
   }
 }
 
@@ -105,7 +108,14 @@ void normalizeFontTable() {
 void calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
-  pg.image(img, 0, 0, width, height);
+  pg.imageMode(CENTER);
+  if(img.width < width){
+    img.resize(width, 0);
+  }
+  if(img.height < height){
+    img.resize(0, height);
+  }
+  pg.image(img, width/2, height/2);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
     imgPixelBrightness[x] = new Array();
@@ -115,7 +125,7 @@ void calculateBrightnessOfEachPixel() {
     }
   }
   pg.endDraw();
-  //  console.log("brightness of pixels "+imgPixelBrightness);
+  //console.log("brightness of pixels "+imgPixelBrightness);
 }
 
 function drawBrightnessAsGrayValue() {
@@ -183,6 +193,7 @@ function findClosestBrightnessMatchFromCharArray() {
 }
 
 function drawChars() {
+  background(bColor);
   fill(fColor);
   for (var x=0; x<cols; x++) {
     for (var y=0; y<rows; y++) {
