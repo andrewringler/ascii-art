@@ -22,9 +22,14 @@ var imgPixelBrightness = new Array();
 var theFontSize = 10;
 var fColor = 0;
 var bColor = 255;
+var drawWidth, drawHeight;
+var recalc;
 
 void setup() {
   size(500, 500);
+  //frameRate(5);
+  drawWidth = 0;
+  drawHeight = 0;
   img = loadImage("andrew.jpg");
   
   monospace = createFont("monospace", theFontSize);
@@ -38,23 +43,25 @@ void setup() {
   calculateBrightnessOfFont();
   normalizeFontTable();
 
-  background(bColor);
-
   //flickrRequest();
   //jsonFlickrApi();
 }
 
 void draw() {
-  size(window.innerWidth, window.innerHeight);
+  size(window.innerWidth, int(window.innerHeight/2));
   cols = int(width/cellW);
   rows = int(height/cellH);
-  
+
   if (img != null) {
-    calculateBrightnessOfEachPixel();
-    // drawBrightnessAsGrayValue();
-    calculateAverageBrightnessOfRegionOfPixels();
-    //  drawAvgBrightnessOfRegionOfPixels();
-    findClosestBrightnessMatchFromCharArray();
+    if(drawHeight != height || drawWidth != width || recalc){
+      console.log("drawing image");
+      calculateBrightnessOfEachPixel();
+      // drawBrightnessAsGrayValue();
+      calculateAverageBrightnessOfRegionOfPixels();
+      //  drawAvgBrightnessOfRegionOfPixels();
+      findClosestBrightnessMatchFromCharArray();
+      recalc = false;
+    }
     drawChars();
     
     //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
@@ -64,16 +71,29 @@ void draw() {
 //    }else{
 //      jsonFlickrApi(saveNextPhoto);
 //    }
+
+    if(imgNext != null){
+     img = imgNext;
+     imgNext = null; 
+    }else{
+      if(newImageLoaded){
+        imgNext = loadImage(newImageSrc);
+        recalc = true;
+      }
+    }
+
+    drawWidth = width;
+    drawHeight = height;
   }
 }
 
-function saveNextPhoto(var photo){
+void saveNextPhoto(var photo){
 //       photo =  {
 //           src: t_url,
 //           path: p_url,
 //           title: photo.title
 //         }
-  imgNext = loadImage(photo.src, "jpg");
+  imgNext = loadImage(photo.src);
 }
 
 function calculateBrightnessOfFont() {
