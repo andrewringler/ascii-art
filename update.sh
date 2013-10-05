@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cp sketch/web-export/andrew.jpg sketch/web-export/processing.js sketch/web-export/sketch.pde www/
+cp sketch/web-export/*.jpg sketch/web-export/*.js sketch/web-export/*.pde www/

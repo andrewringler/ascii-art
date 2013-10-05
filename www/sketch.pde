@@ -3,14 +3,18 @@
 //https://github.com/ACassells/processing.js.SimpleWebCamInteraction & https://class.coursera.org/digitalmedia-001/forum/thread?thread_id=1255
 //http://www.html5rocks.com/en/tutorials/getusermedia/intro/
 //http://www.raymondcamden.com/index.cfm/2013/5/20/Capturing-camerapicture-data-without-PhoneGap
+//http://www.codealias.info/technotes/javascript_for_getting_flickr_images_with_tags
+//http://www.flickr.com/groups/api/discuss/72157629144244216/
+//https://developer.mozilla.org/en-US/docs/HTML/CORS_Enabled_Image?redirectlocale=en-US&redirectslug=CORS_Enabled_Image
 
-
-/* @pjs preload="andrew.jpg"; */
-PImage img;
+/* @pjs preload="andrew.jpg, andrew-486x115.jpg, andrew-253x456.jpg"; */
+PImage img, imgNext;
 PGraphics pg;
+PFont monospace;
 var cellH, cellW, cols, rows;
 var fontMeta = {
 };
+
 var imgPixelAvgBrightnessRegion = new Array();
 var regionSize;
 var closestBrightnessMatch = new Array();
@@ -19,66 +23,88 @@ var theFontSize = 10;
 var fColor = 0;
 var bColor = 255;
 
-var ctx;
-final int cameraWidth = 500;
-final int cameraHeight = 500;
-
 void setup() {
   size(500, 500);
   img = loadImage("andrew.jpg");
-
-  PFont monospace = createFont("monospace", theFontSize);
+  
+  monospace = createFont("monospace", theFontSize);
   textFont(monospace);
   textSize(theFontSize);
   textAlign(LEFT, BOTTOM);
   cellH = int(textDescent() + textAscent());
   cellW = int(textWidth("a"));
-  cols = int(width/cellW);
-  rows = int(height/cellH);
   regionSize = cellW*cellH;
 
-  //  for(var i=0; i<=126-33; i++){
-  //    var l = String.fromCharCode(i+33);
-  //    pg = createGraphics(cellW, cellH);
-  //    pg.beginDraw();
-  //    pg.background(0);
-  //    pg.fill(255);
-  //    pg.stroke(255);
-  //    pg.textFont(monospace);
-  //    pg.textSize(18);
-  //    pg.textAlign(LEFT,BASELINE);
-  //    pg.text(l,0,0);
-  //    pg.loadPixels();
-  //    var b = 0.0;
-  //    for(var px=0; px<pg.pixels.length; px++){
-  //       b += brightness(pg.pixels[px]);
-  //        
-  ////       console.log(l + " " +brightness + " " +c);
-  //     }
-  //     b = b / pg.pixels.length;
-  //     fontMeta[l] = b;
-  //    pg.endDraw();
-  //  }
+  calculateBrightnessOfFont();
+  normalizeFontTable();
 
-  rectMode(CORNER);
+  background(bColor);
+
+  //flickrRequest();
+  //jsonFlickrApi();
+}
+
+void draw() {
+  size(window.innerWidth, window.innerHeight);
+  cols = int(width/cellW);
+  rows = int(height/cellH);
+  
+  if (img != null) {
+    calculateBrightnessOfEachPixel();
+    // drawBrightnessAsGrayValue();
+    calculateAverageBrightnessOfRegionOfPixels();
+    //  drawAvgBrightnessOfRegionOfPixels();
+    findClosestBrightnessMatchFromCharArray();
+    drawChars();
+    
+    //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
+//    if(imgNext != null){
+//     img = imgNext;
+//     imgNext = null; 
+//    }else{
+//      jsonFlickrApi(saveNextPhoto);
+//    }
+  }
+}
+
+function saveNextPhoto(var photo){
+//       photo =  {
+//           src: t_url,
+//           path: p_url,
+//           title: photo.title
+//         }
+  imgNext = loadImage(photo.src, "jpg");
+}
+
+function calculateBrightnessOfFont() {
+  pg = createGraphics(cellW, cellH);
+  pg.beginDraw();
+  pg.rectMode(CORNER);
+  pg.noStroke();
+  pg.textFont(monospace);
+  pg.textSize(theFontSize);
+  pg.textAlign(LEFT, BOTTOM);
+
   for (var i=0; i<=126-33; i++) {
     var l = String.fromCharCode(i+33);
-    fill(bColor);
-    noStroke();
-    rect(0, 0, cellW, cellH);
-    fill(fColor);
-    text(l, 0, 0+cellH);
-    loadPixels();
+    pg.fill(bColor);
+    pg.rect(0, 0, cellW, cellH);
+    pg.fill(fColor);
+    pg.text(l, 0, 0+cellH);
+    pg.loadPixels();
     var b = 0.0;
     for (var x=0; x<cellW; x++) {
       for (var y=0; y<cellH; y++) {
-        b += brightness(get(x, y));
+        b += brightness(pg.pixels[y*cellW+x]);
       }
     }
     b = b / (cellW*cellH);
     fontMeta[l] = b;
   }
+  pg.endDraw();
+}
 
+function normalizeFontTable() {
   // scale
   var min = 255;
   var max = 0;
@@ -98,35 +124,16 @@ void setup() {
     fontMeta[l] = 255*(b-min) / (max-min);
   }
   //  console.log("font brightness levels: "+fontMeta);
-
-  background(bColor);
 }
 
-void draw() {
-//  if (!video.available) return;
-//
-//  // video is defined outside processing code
-//  // draw image to the canvas so that we can read it back, even
-//  // though I have set display:none for the video
-//  // not sure is processingjs can read the video directly and skip this step?
-//  ctx.drawImage(video, 0, 0, cameraWidth, cameraHeight);
-//  img = get(0, 0, cameraWidth, cameraHeight);
-  if (img != null) {
-    calculateBrightnessOfEachPixel();
-    //  drawBrightnessAsGrayValue();
-    calculateAverageBrightnessOfRegionOfPixels();
-    //  drawAvgBrightnessOfRegionOfPixels();
-    findClosestBrightnessMatchFromCharArray();
-    
-    background(bColor);
-    drawChars();
-  }
-}
-
-void calculateBrightnessOfEachPixel() {
+function calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
-  pg.image(img, 0, 0, width, height);
+  pg.imageMode(CENTER);
+  var scaleFactor = 1.0;
+  scaleFactor = width / img.width;
+  scaleFactor = max(scaleFactor, height / img.height);
+  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
     imgPixelBrightness[x] = new Array();
@@ -136,7 +143,7 @@ void calculateBrightnessOfEachPixel() {
     }
   }
   pg.endDraw();
-  //  console.log("brightness of pixels "+imgPixelBrightness);
+  //console.log("brightness of pixels "+imgPixelBrightness);
 }
 
 function drawBrightnessAsGrayValue() {
@@ -204,6 +211,7 @@ function findClosestBrightnessMatchFromCharArray() {
 }
 
 function drawChars() {
+  background(bColor);
   fill(fColor);
   for (var x=0; x<cols; x++) {
     for (var y=0; y<rows; y++) {
@@ -212,9 +220,4 @@ function drawChars() {
   }
 }
 
-void resizeSketch(int w, int h) {
-  if (w < 680) {
-    size(w, floor(float(w)/680*610) - 30);
-    } else size(680, 610 - 30);
-}
 
