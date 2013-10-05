@@ -3,15 +3,18 @@
 //https://github.com/ACassells/processing.js.SimpleWebCamInteraction & https://class.coursera.org/digitalmedia-001/forum/thread?thread_id=1255
 //http://www.html5rocks.com/en/tutorials/getusermedia/intro/
 //http://www.raymondcamden.com/index.cfm/2013/5/20/Capturing-camerapicture-data-without-PhoneGap
-
+//http://www.codealias.info/technotes/javascript_for_getting_flickr_images_with_tags
+//http://www.flickr.com/groups/api/discuss/72157629144244216/
+//https://developer.mozilla.org/en-US/docs/HTML/CORS_Enabled_Image?redirectlocale=en-US&redirectslug=CORS_Enabled_Image
 
 /* @pjs preload="andrew.jpg, andrew-486x115.jpg, andrew-253x456.jpg"; */
-PImage img;
+PImage img, imgNext;
 PGraphics pg;
 PFont monospace;
 var cellH, cellW, cols, rows;
 var fontMeta = {
 };
+
 var imgPixelAvgBrightnessRegion = new Array();
 var regionSize;
 var closestBrightnessMatch = new Array();
@@ -36,6 +39,9 @@ void setup() {
   normalizeFontTable();
 
   background(bColor);
+
+  //flickrRequest();
+  //jsonFlickrApi();
 }
 
 void draw() {
@@ -50,10 +56,27 @@ void draw() {
     //  drawAvgBrightnessOfRegionOfPixels();
     findClosestBrightnessMatchFromCharArray();
     drawChars();
+    
+    //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
+//    if(imgNext != null){
+//     img = imgNext;
+//     imgNext = null; 
+//    }else{
+//      jsonFlickrApi(saveNextPhoto);
+//    }
   }
 }
 
-void calculateBrightnessOfFont() {
+function saveNextPhoto(var photo){
+//       photo =  {
+//           src: t_url,
+//           path: p_url,
+//           title: photo.title
+//         }
+  imgNext = loadImage(photo.src, "jpg");
+}
+
+function calculateBrightnessOfFont() {
   pg = createGraphics(cellW, cellH);
   pg.beginDraw();
   pg.rectMode(CORNER);
@@ -81,7 +104,7 @@ void calculateBrightnessOfFont() {
   pg.endDraw();
 }
 
-void normalizeFontTable() {
+function normalizeFontTable() {
   // scale
   var min = 255;
   var max = 0;
@@ -102,7 +125,8 @@ void normalizeFontTable() {
   }
   //  console.log("font brightness levels: "+fontMeta);
 }
-void calculateBrightnessOfEachPixel() {
+
+function calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
   pg.imageMode(CENTER);
@@ -194,13 +218,6 @@ function drawChars() {
       text(closestBrightnessMatch[x][y], x*cellW, y*cellH+cellH);
     }
   }
-}
-
-void resizeSketch(int w, int h) {
-  if (w < 680) {
-    size(w, floor(float(w)/680*610) - 30);
-  } 
-  else size(680, 610 - 30);
 }
 
 
