@@ -27,6 +27,7 @@ var drawWidth, drawHeight;
 var recalc;
 var redraw = true;
 var TOOL_HEIGHT = 150;
+var userZoom = 1.0;
 
 void setup() {
   size(100, 100);
@@ -57,6 +58,11 @@ void draw() {
   }
   cols = int(width/cellW);
   rows = int(height/cellH);
+  
+  if(hammertime_scale != undefined && hammertime_scale != userZoom){
+    userZoom = hammertime_scale;
+    recalc = true;
+  }
 
   if (img != null) {
     if(drawHeight != height || drawWidth != width || recalc){
@@ -141,9 +147,11 @@ function calculateBrightnessOfEachPixel() {
   pg = createGraphics(width, height);
   pg.beginDraw();
   pg.imageMode(CENTER);
+  // zoom and crop, captured image to fit nicely on the screen
   var scaleFactor = 1.0;
   scaleFactor = width / img.width;
   scaleFactor = max(scaleFactor, height / img.height);
+  scaleFactor *= userZoom; //adjust by user zoom level (pinch) 
   pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
