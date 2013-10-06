@@ -88,13 +88,15 @@ var pictureSource;   // picture source
     // A button will call this function
     //
     function capturePhoto() {
-      // Take picture using device camera and retrieve image as base64-encoded string
-      navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 75,
+      var options = { quality: 40,
         destinationType: destinationType.DATA_URL,
         encodingType: Camera.EncodingType.JPEG,
         targetWidth: window.innerWidth,
-        targetHeight: 500
-      });
+        targetHeight: window.innerHeight
+      };
+
+      // Take picture using device camera and retrieve image as base64-encoded string
+      navigator.camera.getPicture(onPhotoDataSuccess, onFail, options);
     }
 	
     // A button will call this function

@@ -6,6 +6,7 @@
 //http://www.codealias.info/technotes/javascript_for_getting_flickr_images_with_tags
 //http://www.flickr.com/groups/api/discuss/72157629144244216/
 //https://developer.mozilla.org/en-US/docs/HTML/CORS_Enabled_Image?redirectlocale=en-US&redirectslug=CORS_Enabled_Image
+//https://processing-js.lighthouseapp.com/projects/41284-processingjs/tickets/1927
 
 /* @pjs preload="andrew.jpg, andrew-486x115.jpg, andrew-253x456.jpg"; */
 PImage img, imgNext;
@@ -44,9 +45,6 @@ void setup() {
 
   calculateBrightnessOfFont();
   normalizeFontTable();
-
-  //flickrRequest();
-  //jsonFlickrApi();
 }
 
 void draw() {
@@ -61,29 +59,19 @@ void draw() {
 
   if (img != null) {
     if(drawHeight != height || drawWidth != width || recalc){
-      console.log("re-calculating ASCII art");
       calculateBrightnessOfEachPixel();
       calculateAverageBrightnessOfRegionOfPixels();
       findClosestBrightnessMatchFromCharArray();
       recalc = false;
       redraw = true;
-      console.log("done re-calculating ASCII art");      
     }
     if(redraw){
-     // drawBrightnessAsGrayValue();
-    //  drawAvgBrightnessOfRegionOfPixels();
+      //drawBrightnessAsGrayValue();
+      //drawAvgBrightnessOfRegionOfPixels();
       drawChars();
       redraw = false;
     }
     
-    //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
-//    if(imgNext != null){
-//     img = imgNext;
-//     imgNext = null; 
-//    }else{
-//      jsonFlickrApi(saveNextPhoto);
-//    }
-
     if(newImageLoaded != undefined && newImageLoaded){
         console.log("loading new image");
         img = loadImage(newImageSrc);
@@ -92,26 +80,10 @@ void draw() {
         recalc = true;
         newImageLoaded = false;
     }
-//    imageMode(CORNER);
-    //image(img, 0, 0, width, height);
-//    if(newImageSrc != undefined && newImageSrc){
-//      var jsImg = new Image();
-//      jsImg.src = newImageSrc;
-//      ctx.drawImage(jsImg, 0, 0, width, height);
-//    }
     
     drawWidth = width;
     drawHeight = height;
   }
-}
-
-void saveNextPhoto(var photo){
-//       photo =  {
-//           src: t_url,
-//           path: p_url,
-//           title: photo.title
-//         }
-  imgNext = loadImage(photo.src);
 }
 
 function calculateBrightnessOfFont() {
@@ -161,7 +133,6 @@ function normalizeFontTable() {
     var b = fontMeta[l];
     fontMeta[l] = 255*(b-min) / (max-min);
   }
-  //  console.log("font brightness levels: "+fontMeta);
 }
 
 function calculateBrightnessOfEachPixel() {
@@ -172,8 +143,7 @@ function calculateBrightnessOfEachPixel() {
   var scaleFactor = 1.0;
   scaleFactor = width / img.width;
   scaleFactor = max(scaleFactor, height / img.height);
-//  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
-  pg.image(img, width/2, height/2, width, height);
+  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
     imgPixelBrightness[x] = new Array();
@@ -183,7 +153,6 @@ function calculateBrightnessOfEachPixel() {
     }
   }
   pg.endDraw();
-  //console.log("brightness of pixels "+imgPixelBrightness);
 }
 
 function drawBrightnessAsGrayValue() {
@@ -205,15 +174,12 @@ function calculateAverageBrightnessOfRegionOfPixels() {
       var avgBrightness = 0.0;
       for (var i=0; i<cellW; i++) {
         for (var j=0; j<cellH; j++) {
-          //console.log("x="+(x*cellW +i)+" y="+(y*cellH +j));
           avgBrightness += imgPixelBrightness[x*cellW +i][y*cellH +j];
-          //console.log(avgBrightness);
         }
       }
       imgPixelAvgBrightnessRegion[x][y] = avgBrightness / regionSize;
     }
   }
-  //  console.log("avg brightness " + imgPixelAvgBrightnessRegion);
 }
 
 function drawAvgBrightnessOfRegionOfPixels() {
@@ -249,7 +215,6 @@ function findClosestBrightnessMatchFromCharArray() {
       closestBrightnessMatch[x][y] = theChar;
     }
   }
-  //console.log("match "+closestBrightnessMatch);
 }
 
 function drawChars() {
