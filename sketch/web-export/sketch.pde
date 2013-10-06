@@ -24,11 +24,12 @@ var fColor = 0;
 var bColor = 255;
 var drawWidth, drawHeight;
 var recalc;
+var redraw = true;
 
 void setup() {
   size(500, 500);
+  frameRate(5);
   ctx = externals.context;
-  //frameRate(5);
   drawWidth = 0;
   drawHeight = 0;
   img = loadImage("andrew.jpg");
@@ -49,20 +50,31 @@ void setup() {
 }
 
 void draw() {
-  size(window.innerWidth, int(window.innerHeight/2));
+  var newWidth = window.innerWidth;
+  var newHeight = int(window.innerHeight/2);
+  if(newWidth != width || newHeight != height){
+    size(window.innerWidth, int(window.innerHeight/2));
+    redraw = true;
+  }
   cols = int(width/cellW);
   rows = int(height/cellH);
 
   if (img != null) {
     if(drawHeight != height || drawWidth != width || recalc){
+      console.log("re-calculating ASCII art");
       calculateBrightnessOfEachPixel();
       calculateAverageBrightnessOfRegionOfPixels();
       findClosestBrightnessMatchFromCharArray();
       recalc = false;
+      redraw = true;
+      console.log("done re-calculating ASCII art");      
     }
-    drawBrightnessAsGrayValue();
+    if(redraw){
+     // drawBrightnessAsGrayValue();
     //  drawAvgBrightnessOfRegionOfPixels();
-    //drawChars();
+      drawChars();
+      redraw = false;
+    }
     
     //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
 //    if(imgNext != null){
@@ -73,6 +85,7 @@ void draw() {
 //    }
 
     if(newImageLoaded != undefined && newImageLoaded){
+        console.log("loading new image");
         img = loadImage(newImageSrc);
         //image(img, 0, 0, width, height);
         //text("hello", 50, 50);
