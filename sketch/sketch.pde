@@ -26,9 +26,10 @@ var bColor = 255;
 var drawWidth, drawHeight;
 var recalc;
 var redraw = true;
+var TOOL_HEIGHT = 150;
 
 void setup() {
-  size(500, 500);
+  size(100, 100);
   frameRate(5);
   ctx = externals.context;
   drawWidth = 0;
@@ -49,9 +50,9 @@ void setup() {
 
 void draw() {
   var newWidth = window.innerWidth;
-  var newHeight = int(window.innerHeight/2);
+  var newHeight = int(window.innerHeight - TOOL_HEIGHT);
   if(newWidth != width || newHeight != height){
-    size(window.innerWidth, int(window.innerHeight/2));
+    size(newWidth, newHeight);
     redraw = true;
   }
   cols = int(width/cellW);
