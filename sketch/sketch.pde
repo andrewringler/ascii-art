@@ -14,11 +14,11 @@ PFont monospace;
 var cellH, cellW, cols, rows;
 var fontMeta = {
 };
-
-var imgPixelAvgBrightnessRegion = new Array();
+var ctx;
+var imgPixelAvgBrightnessRegion;
 var regionSize;
-var closestBrightnessMatch = new Array();
-var imgPixelBrightness = new Array();
+var closestBrightnessMatch;
+var imgPixelBrightness;
 var theFontSize = 10;
 var fColor = 0;
 var bColor = 255;
@@ -27,6 +27,7 @@ var recalc;
 
 void setup() {
   size(500, 500);
+  ctx = externals.context;
   //frameRate(5);
   drawWidth = 0;
   drawHeight = 0;
@@ -54,15 +55,14 @@ void draw() {
 
   if (img != null) {
     if(drawHeight != height || drawWidth != width || recalc){
-      console.log("drawing image");
       calculateBrightnessOfEachPixel();
-      // drawBrightnessAsGrayValue();
       calculateAverageBrightnessOfRegionOfPixels();
-      //  drawAvgBrightnessOfRegionOfPixels();
       findClosestBrightnessMatchFromCharArray();
       recalc = false;
     }
-    drawChars();
+    drawBrightnessAsGrayValue();
+    //  drawAvgBrightnessOfRegionOfPixels();
+    //drawChars();
     
     //doesn't actually work because Flickr does not support CORS on his static image CDN :(    
 //    if(imgNext != null){
@@ -72,16 +72,21 @@ void draw() {
 //      jsonFlickrApi(saveNextPhoto);
 //    }
 
-    if(imgNext != null){
-     img = imgNext;
-     imgNext = null; 
-    }else{
-      if(newImageLoaded){
-        imgNext = loadImage(newImageSrc);
+    if(newImageLoaded != undefined && newImageLoaded){
+        img = loadImage(newImageSrc);
+        //image(img, 0, 0, width, height);
+        //text("hello", 50, 50);
         recalc = true;
-      }
+        newImageLoaded = false;
     }
-
+//    imageMode(CORNER);
+    //image(img, 0, 0, width, height);
+//    if(newImageSrc != undefined && newImageSrc){
+//      var jsImg = new Image();
+//      jsImg.src = newImageSrc;
+//      ctx.drawImage(jsImg, 0, 0, width, height);
+//    }
+    
     drawWidth = width;
     drawHeight = height;
   }
@@ -147,13 +152,15 @@ function normalizeFontTable() {
 }
 
 function calculateBrightnessOfEachPixel() {
+  imgPixelBrightness = new Array();
   pg = createGraphics(width, height);
   pg.beginDraw();
   pg.imageMode(CENTER);
   var scaleFactor = 1.0;
   scaleFactor = width / img.width;
   scaleFactor = max(scaleFactor, height / img.height);
-  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
+//  pg.image(img, width/2, height/2, img.width*scaleFactor, img.height*scaleFactor);
+  pg.image(img, width/2, height/2, width, height);
   pg.loadPixels();
   for (var x=0; x<width; x++) {
     imgPixelBrightness[x] = new Array();
@@ -177,6 +184,7 @@ function drawBrightnessAsGrayValue() {
 }
 
 function calculateAverageBrightnessOfRegionOfPixels() {
+  imgPixelAvgBrightnessRegion = new Array();
   for (var x=0; x<cols; x++) {
     imgPixelAvgBrightnessRegion[x] = new Array();
     for (var y=0; y<rows; y++) {
@@ -208,6 +216,7 @@ function drawAvgBrightnessOfRegionOfPixels() {
 }
 
 function findClosestBrightnessMatchFromCharArray() {
+  closestBrightnessMatch = new Array();
   for (var x=0; x<cols; x++) {
     closestBrightnessMatch[x] = new Array();
     for (var y=0; y<rows; y++) {
