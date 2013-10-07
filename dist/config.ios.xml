@@ -64,6 +64,9 @@
         <plugin name="org.apache.cordova.facebook.Connect" value="FacebookConnectPlugin" />
         <plugin name="FlurryPlugin" value="FlurryPlugin" />
         <plugin name="GAPlugin" value="GAPlugin" />
+		
+		<!-- Custom Plugins -->
+		<plugin name="EmailComposer" value="EmailComposer" />
     </plugins>
 
     <access origin="*" />

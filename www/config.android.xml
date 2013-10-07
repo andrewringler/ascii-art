@@ -51,5 +51,9 @@
         <plugin name="DatePickerPlugin" value="com.phonegap.plugin.DatePickerPlugin"/>
         <plugin name="calendarPlugin" value="com.twist.android.plugins.calendar.CalendarPlugin"/>
         <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/>
+		
+		<!-- Custom Plugins -->
+		<plugin name="EmailComposer" value="org.apache.cordova.EmailComposer" />
+		
     </plugins>
 </cordova>
