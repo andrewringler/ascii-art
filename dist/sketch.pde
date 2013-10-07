@@ -15,6 +15,7 @@ PFont monospace;
 var cellH, cellW, cols, rows;
 var fontMeta = {
 };
+var brightnessToFont = new Array();
 var ctx;
 var imgPixelAvgBrightnessRegion;
 var regionSize;
@@ -47,6 +48,7 @@ void setup() {
 
   calculateBrightnessOfFont();
   normalizeFontTable();
+  createFontBrightnessHashTable();
 }
 
 void draw() {
@@ -86,6 +88,7 @@ void draw() {
         //text("hello", 50, 50);
         recalc = true;
         newImageLoaded = false;
+        userZoom = 1.0;
     }
     
     drawWidth = width;
@@ -122,7 +125,7 @@ function calculateBrightnessOfFont() {
 }
 
 function normalizeFontTable() {
-  // scale
+  // find min/max
   var min = 255;
   var max = 0;
   for (var i=0; i<=126-33; i++) {
@@ -135,10 +138,29 @@ function normalizeFontTable() {
       max = b;
     }
   }
+  // scale
   for (var i=0; i<=126-33; i++) {
     var l = String.fromCharCode(i+33);
     var b = fontMeta[l];
     fontMeta[l] = 255*(b-min) / (max-min);
+  }
+}
+
+function createFontBrightnessHashTable() {
+  for(var i=0; i<=255; i++){
+      // find closest brightness match
+      var bestDiff = 255;
+      var theChar = "-";
+      for (var k=0; k<=126-33; k++) {
+        var curChar = String.fromCharCode(k+33);
+        var b = fontMeta[curChar];
+        var diff = abs(b - i);
+        if (diff < bestDiff) {
+          bestDiff = diff;
+          theChar = curChar;
+        }
+      }
+      brightnessToFont.push(theChar);
   }
 }
 
@@ -209,19 +231,7 @@ function findClosestBrightnessMatchFromCharArray() {
     closestBrightnessMatch[x] = new Array();
     for (var y=0; y<rows; y++) {
       var avg = imgPixelAvgBrightnessRegion[x][y];
-      // find closest brightness match
-      var bestDiff = 255;
-      var theChar = "-";
-      for (var k=0; k<=126-33; k++) {
-        var curChar = String.fromCharCode(k+33);
-        var b = fontMeta[curChar];
-        var diff = abs(avg - b);
-        if (diff < bestDiff) {
-          bestDiff = diff;
-          theChar = curChar;
-        }
-      }
-      closestBrightnessMatch[x][y] = theChar;
+      closestBrightnessMatch[x][y] = brightnessToFont[round(avg)];
     }
   }
 }
