@@ -1,6 +1,7 @@
 * {
   -webkit-user-select: none;  /* Disable selection/copy of elements when tapping for a long time */
   -webkit-touch-callout: none; /* Disable touch callouts */
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
 }
 
 input {
@@ -9,4 +10,36 @@ input {
 
 .content-padded {
   padding: 10px;
+}
+
+/* /////
+/
+/
+/
+/    Toolbar in Footer
+/
+/
+/
+*********/
+.footer-toolbar {
+	width: 100%;
+	display: block;
+}
+.footer-toolbar-item {
+	float: left;	
+	overflow: hidden;
+	width: 100px;
+	height: 100px;
+	position: relative;
+}
+.footer-toolbar-icon {
+	height: 50px;
+	width: 70px;
+	padding-left: 15px;
+	display: block;
+}
+.footer-toolbar-text {
+	display: block;
+	text-align: center;
+	width: 100%;
 }

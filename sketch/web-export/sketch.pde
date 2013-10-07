@@ -7,8 +7,10 @@
 //http://www.flickr.com/groups/api/discuss/72157629144244216/
 //https://developer.mozilla.org/en-US/docs/HTML/CORS_Enabled_Image?redirectlocale=en-US&redirectslug=CORS_Enabled_Image
 //https://processing-js.lighthouseapp.com/projects/41284-processingjs/tickets/1927
+//http://www.mikedellanoce.com/2012/09/10-tips-for-getting-that-native-ios.html
+//http://guides.appgyver.com/steroids/guides/project_configuration/config-xml-ios/
 
-/* @pjs preload="andrew.jpg, andrew-486x115.jpg, andrew-253x456.jpg"; */
+/* @pjs preload="andrew.jpg"; */
 PImage img, imgNext;
 PGraphics pg;
 PFont monospace;
@@ -27,7 +29,7 @@ var bColor = 255;
 var drawWidth, drawHeight;
 var recalc;
 var redraw = true;
-var TOOL_HEIGHT = 150;
+var TOOL_HEIGHT = 100;
 var userZoom = 1.0;
 
 void setup() {
