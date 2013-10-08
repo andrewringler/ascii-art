@@ -12,6 +12,21 @@ input {
   padding: 10px;
 }
 
+
+/* /////
+/
+/
+/
+/    Layout
+/
+/
+/
+*********/
+canvas {
+	float: left;
+}
+
+
 /* /////
 /
 /
@@ -22,21 +37,35 @@ input {
 /
 *********/
 .footer-toolbar {
+	float: left;
+	
 	width: 100%;
 	display: block;
+	
+	padding-top: 10px;
+	margin: 0;
+	background-color: white;
 }
 .footer-toolbar-item {
+	background-color: white;
+	text-align: center;
+	
 	float: left;	
+	width: 33%;
+	margin: 0;
+	padding: 0;
 	overflow: hidden;
-	width: 100px;
 	height: 100px;
-	position: relative;
+	position: relative;	
 }
 .footer-toolbar-icon {
 	height: 50px;
-	width: 70px;
-	padding-left: 15px;
-	display: block;
+	display: inline-block;
+}
+.footer-toolbar-image {
+	height: 48px;
+	display: inline-block;
+	border: 1px solid #777;
 }
 .footer-toolbar-text {
 	display: block;
